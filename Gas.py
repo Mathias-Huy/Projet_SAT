@@ -18,5 +18,3 @@ class Gas:
         self.desity = None
         self.masse_molaire = None
 
-    def density(self, temp, press_part):  # temp en Kelvin et press_part en
-        return (self.masse_molaire * press_part) / (masse_moalire_air * R * temp)
