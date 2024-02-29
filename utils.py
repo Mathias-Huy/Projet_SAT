@@ -23,6 +23,10 @@ class Gas:
         self.desity = None
         self.masse_molaire = None
 
+    def ciddor(self):
+        return (self.desity / self.density_ctrl) * ((self.index_ctrl ** 2 - 1) / (self.index_ctrl ** 2 + 2))
+
+
 
 def density(pression, temperature, masse_molaire, compres=1):
     masse_vol = (masse_molaire * pression) / (R * temperature * compres)
