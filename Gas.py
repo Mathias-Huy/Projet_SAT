@@ -2,12 +2,10 @@ import math as m
 import numpy as np
 
 R = 8, 31446261815324  # J K−1 mol−1
-masse_moalire_air = 29e-3
+masse_molaire_air = 29e-3
 
 
 class Gas:
-    """Nous allons travailler pour realiser des profils d'indice de reflexion donc il faut etablir les gazs de notre
-    panache et sa densité sur chaque pas delta_r"""
 
     def __init__(self, name, density, index, compr):
         self.name = name
