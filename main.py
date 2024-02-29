@@ -1,4 +1,5 @@
 import utils
+from ambiance import Atmosphere
 
 sigma = 1 / 600  # m^-1
 f = open("Gaz.txt")
@@ -13,3 +14,4 @@ for line in f:
         index = utils.refrac(k0, k1, k2)
         bdd.append(utils.Gas(name, density, index))
 f.close()
+
