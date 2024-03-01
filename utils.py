@@ -10,14 +10,15 @@ masse_vol_air = 1.204  # kg/m^3
 
 class Gas:
 
-    def __init__(self, name, dens, index):
+    def __init__(self, name, dens, index, mas_mol):
         self.name = name
         self.density_ctrl = float(dens) if density != "None" else None
         self.index_ctrl = float(index) if index != "None" else None
         self.env_ctrl = (self.index_ctrl, self.density_ctrl)
+        self.masse_mol = mas_mol
 
-    def ciddor(self):
-        return (self.desity / self.density_ctrl) * ((self.index_ctrl ** 2 - 1) / (self.index_ctrl ** 2 + 2))
+    def ciddor(self, densite):
+        return (densite / self.density_ctrl) * ((self.index_ctrl ** 2 - 1) / (self.index_ctrl ** 2 + 2))
 
 
 class Atmo:
@@ -27,12 +28,14 @@ class Atmo:
         self.debut = altitude_deb
         self.fin = altitude_fin
         self.comp = liste
+        self.tranche = None
 
     def decoupe(self, tranche):
-        liste = []
+        self.tranche = []
         pas = (self.fin - self.debut) / tranche
         for x in range(tranche):
-            liste.append((self.debut + x * pas, pression(self.debut + x * pas), temperature(self.debut + x * pas)))
+            self.tranche.append(
+                (self.debut + x * pas, pression(self.debut + x * pas), temperature(self.debut + x * pas)))
 
 
 def density(press, temp, masse_molaire, compres=1):
