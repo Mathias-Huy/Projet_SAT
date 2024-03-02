@@ -43,9 +43,11 @@ for tranche in air_std.tranche:
         dens = utils.density(pression_partiel, temperature, gaz.masse_mol)
         L += gaz.ciddor(dens)
     print(P)
-    indice = sqrt((1 + 2 * L) / (1 - L))
+    indice = (sqrt((1 + 2 * L) / (1 - L))-1)*10**6
     indices.append(indice)
 
 plt.plot(indices, altitude, ls=':')
-plt.title("Indice de réfraction en fonction de l'altitude")
+plt.title("Réfractivité en fonction de l'altitude")
+plt.xlabel("Réfractivité")
+plt.ylabel("Altitude en km")
 plt.show()
