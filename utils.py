@@ -3,9 +3,8 @@ import numpy as np
 
 """On initialise les gaz pour une longueur d'onde de 60m"""
 
-R = 8, 31446261815324  # J/K/mol la constante des gazs parfaits
-masse_molaire_air = 29e-3  # kg/mol
-masse_vol_air = 1.204  # kg/m^3
+R = 8.31446261815324  # J/K/mol la constante des gazs parfaits
+masse_vol_air = 1204  # g/m^3
 
 
 class Gas:
@@ -38,9 +37,8 @@ class Atmo:
                 (self.debut + x * pas, pression(self.debut + x * pas), temperature(self.debut + x * pas)))
 
 
-def density(press, temp, masse_molaire, compres=1):
-    masse_vol = (masse_molaire * press) / (R * temp * compres)
-
+def density(press, temp, masse_molaire, compres=1.):
+    masse_vol = (masse_molaire * press * 100) / (R * temp * compres)
     return masse_vol / masse_vol_air
 
 
@@ -48,20 +46,23 @@ def refrac(k0, k1, k2, sigma):
     return 1 + 10e-8 * (k0 + (k1 / (k2 - sigma ** 2)))
 
 
-def temperature(altitude):
+def temperature(altitude_geom):
     """altitude en km et retourne la temperature en kelvin"""
-    if altitude < 13:
-        return 294.9838 - 5.2159 * altitude - 0.07109 * altitude ** 2
-    elif 13 <= altitude < 17:
-        return 215.5
-    elif 17 <= altitude < 47:
-        return 215.5 * m.exp((altitude - 17) * 0.008128)
+    altitude = (6356.766 * altitude_geom) / (6356.766 + altitude_geom)
+    if altitude < 11:
+        return 288.15 - 6.5 * altitude
+    elif 11 <= altitude < 20:
+        return 216.65
+    elif 20 <= altitude < 32:
+        return 216.65 + 2.8 * (altitude - 20)
 
 
-def pression(altitude):
+def pression(altitude_geom):
     """Pression en hPa avec l'altitude en km"""
-
-    if altitude <= 10:
-        return 1012.8186 - 111.5569 * altitude + 3.8646 * altitude ** 2
-    elif 10 < altitude <= 72:
-        return pression(10) * m.exp(-0.417 * (altitude - 10))
+    altitude= (6356.766*altitude_geom)/(6356.766+altitude_geom)
+    if altitude <= 11:
+        return 1013.25 * (288.15 / (288.15 - 6.5 * altitude)) ** (-34.1632 / 6.5)
+    elif 11 < altitude <= 20:
+        return 226.3226 * m.exp(-34.1632 * (altitude - 11) / 216.65)
+    elif 20 < altitude <= 32:
+        return 54.74980 * (216.65 / (216.65 + (altitude - 20))) ** 34.1632
