@@ -39,7 +39,7 @@ class Atmo:
 
 def density(press, temp, masse_molaire, compres=1.):
     masse_vol = (masse_molaire * press * 100) / (R * temp * compres)
-    return masse_vol / masse_vol_air
+    return masse_vol
 
 
 def refrac(k0, k1, k2, sigma):
