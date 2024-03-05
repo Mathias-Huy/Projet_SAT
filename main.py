@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 import utils
 
-sigma = 1 / 60  # m^-1
+sigma = 1 / 0.6  # m^-1
 f = open("Gaz.txt")
 bdd = {}
 altitude = []
@@ -86,14 +86,18 @@ for tranche in air_co.tranche:
     t.append(tranche[2])
     L = 0
     P = 0
+    
     for gaz_tup in air_co.comp:
         gaz = gaz_tup[0]
         coeff = gaz_tup[1]
         pression_partiel = coeff * tranche[1]  # pression en hPa
         P += pression_partiel
         temperature = tranche[2]
+         
 
         dens = utils.density(pression_partiel, temperature, gaz.masse_mol)
+        print (dens)
+        print("\n")
         L += gaz.ciddor(dens)
         print(L)
         print("\n")
