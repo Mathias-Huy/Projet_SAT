@@ -4,9 +4,9 @@ import numpy as np
 """On initialise les gaz pour une longueur d'onde de 60m"""
 
 R = 8.31446261815324  # J/K/mol la constante des gazs parfaits
-frequence = 5e9  # en Hz
+frequence = 5e6  # en Hz
 lambd = 3e8 / frequence
-sigma = 1 / lambd
+sigma = 1 / (lambd * 10 ** 2)
 
 
 class Gaz:
@@ -15,7 +15,9 @@ class Gaz:
         self.name = name
         self.masse_molaire = masse_molaire  # en kg/mol
         self.masse_volumique_ctrl = self.calc_masse_volumique(101325, 290)  # en kg/m^3
+        print(self.name + " rho " + str(self.masse_volumique_ctrl))
         self.indice_ctrl = indice_ctrl
+        print(self.name + " n ", self.indice_ctrl)
 
     def calc_masse_volumique(self, pression, temperature):
         """Donne la masse volumique d'un gaz en kg/m^3 en fonction de la pression en Pa de la temperature en K et de
@@ -71,8 +73,11 @@ class Atmo:
                 pression_partielle = pression * coeff  # Pression partielle du gaz en Pa
                 masse_volumique = gaz.calc_masse_volumique(pression_partielle, temperature)  # Masse Volumique en kg/m^3
                 L += gaz.ciddor(masse_volumique)
+
             indice = m.sqrt((1 + (2 * L)) / (1 - L))
+
             indice = (indice - 1) * (10 ** 6)
+            print(indice)
             self.indices.append(indice)
 
 
@@ -98,13 +103,21 @@ def modele_temperature(altitude_geom):
         return 216.65 + (altitude - 20)
 
 
-def refraction(k0, k1, k2):
-    return 1 + (10 ** -8) * (k0 + (k1 / (k2 - (sigma ** 2))))
-
-
 def ITU(pressions, temperatures):
     std = []
     for i in range(len(pressions)):
         x = 77.6 * (pressions[i] / (temperatures[i] * 100))
         std.append(x)
     return std
+
+
+def refraction(name, ks):
+    k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10 = ks
+    if name == "Dry":
+        return 1 + (k1 / (k0 - (sigma ** 2))) + (k3 / (k2 - (sigma ** 2)))
+    elif name == "CO2":
+        return 1 + k0 * (10 ** -3) * (
+                (k1 / (k2 ** 2 - (sigma ** 2))) + (k3 / (k4 ** 2 - sigma ** 2)) + (k5 / (k6 ** 2 - (sigma ** 2))) + (
+                k7 / (k8 ** 2 - (sigma ** 2))) + (k9 / (k10 ** 2 - (sigma ** 2))))
+    else:
+        return 1 + (10 ** -8) * (k0 + (k1 / (k2 - (sigma ** 2))))

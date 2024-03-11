@@ -9,20 +9,22 @@ for line in f:
         line = line.replace(",", ".")
         line = line.split()
         name = line[0]
-        k0, k1, k2, masse_mol = map(float, line[1:])
-        index = utils.refraction(k0, k1, k2)
+        ks = [float(x) for x in line[1:-1]]
+        masse_mol = float(line[-1])
+        index = utils.refraction(name, ks)
         bdd[name] = utils.Gaz(name, masse_mol, index)
 f.close()
 
-comp_air_std = [(bdd["O2"], 0.21), (bdd["N2"], 0.79)]
+comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
 comp_air_co = [(bdd["O2"], 0.189), (bdd["N2"], 0.711), (bdd["CO"], 0.1)]
 
 # atmosphere_std = utils.Atmo(0, 30, comp_air_std)
 # atmosphere_std.decoupe_altitude(30)
 # atmosphere_std.profil_indice()
-# temperature = atmosphere_std.temperatures
+# temperatures = atmosphere_std.temperatures
 # pressions = atmosphere_std.pressions
 # indices = atmosphere_std.indices
+# altitudes = atmosphere_std.altitudes
 
 atmosphere_std_1 = utils.Atmo(0, 10, comp_air_std)
 atmosphere_co = utils.Atmo(10, 20, comp_air_co)
