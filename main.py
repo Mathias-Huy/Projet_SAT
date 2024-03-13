@@ -11,8 +11,8 @@ for line in f:
         name = line[0]
         ks = [float(x) for x in line[1:-1]]
         masse_mol = float(line[-1])
-        index = utils.refraction(name, ks)
-        bdd[name] = utils.Gaz(name, masse_mol, index)
+        indice_ctrl = utils.refraction(name, ks)
+        bdd[name] = utils.Gaz(name, masse_mol, indice_ctrl)
 f.close()
 
 comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
