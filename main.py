@@ -18,8 +18,7 @@ f.close()
 comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
 comp_air_co = [(bdd["O2"], 0.189), (bdd["N2"], 0.711), (bdd["CO"], 0.1)]
 
-
-# Pour l'atmosphère standard : 
+# Pour l'atmosphère standard :
 
 atmosphere_std = utils.Atmo(0, 30, comp_air_std)
 atmosphere_std.decoupe_altitude(30)
@@ -63,16 +62,15 @@ plt.xlabel("Pression en hPa")
 plt.ylabel("Altitude en km")
 
 plt.figure("Réfractivité")
-plt.plot(indices, altitudes, label = "Indices")
-plt.plot(modele_itu, altitudes, ls=':', label = "modèle ITU")
+plt.plot(indices, altitudes, label="Indices")
+plt.plot(modele_itu, altitudes, ls=':', label="modèle ITU")
 plt.title("Réfractivité en fonction de l'altitude")
 plt.xlabel("Réfractivité en N unit")
 plt.ylabel("Altitude en km")
 plt.legend()
 
-
 plt.figure("Réfractivité CO")
-plt.plot(indices_co, altitudes_co, label = "Indices")
+plt.plot(indices_co, altitudes_co, label="Indices")
 plt.title("Réfractivité en fonction de l'altitude")
 plt.xlabel("Réfractivité en N unit")
 plt.ylabel("Altitude en km")
