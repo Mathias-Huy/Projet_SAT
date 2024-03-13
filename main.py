@@ -16,7 +16,7 @@ for line in f:
 f.close()
 
 comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
-comp_air_co = [(bdd["O2"], 0.189), (bdd["N2"], 0.711), (bdd["CO"], 0.1)]
+comp_air_co = [(bdd["O2"], 0.18), (bdd["N2"], 0.72), (bdd["CO"], 0.1)]
 
 # Pour l'atmosphère standard :
 
