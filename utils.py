@@ -1,5 +1,6 @@
 import math as m
 import numpy as np
+import matplotlib.pyplot as plt
 
 """On initialise les gaz pour une longueur d'onde de 60m"""
 
@@ -15,9 +16,7 @@ class Gaz:
         self.name = name
         self.masse_molaire = masse_molaire  # en kg/mol
         self.masse_volumique_ctrl = self.calc_masse_volumique(101325, 290)  # en kg/m^3
-        print(self.name + " rho " + str(self.masse_volumique_ctrl))
         self.indice_ctrl = indice_ctrl
-        print(self.name + " n ", self.indice_ctrl)
 
     def calc_masse_volumique(self, pression, temperature):
         """Donne la masse volumique d'un gaz en kg/m^3 en fonction de la pression en Pa de la temperature en K et de
@@ -34,7 +33,7 @@ class Gaz:
 
 class Atmo:
 
-    def __init__(self, altitude_debut, altitude_fin, composition):
+    def __init__(self, altitude_debut, altitude_fin, composition, nb_tranche):
         self.indices = None
         self.temperatures = None
         self.pressions = None
@@ -43,10 +42,14 @@ class Atmo:
         self.altitude_fin = altitude_fin
         self.composition = composition
 
+        self.decoupe_altitude(nb_tranche)
+
     def decoupe_altitude(self, nombre_de_tranche):
         pas = (self.altitude_fin - self.altitude_debut) / nombre_de_tranche
         self.altitudes = [self.altitude_debut + (i * pas) for i in
                           range(nombre_de_tranche + 1)]
+
+        self.profil_indice()
 
     def profil_pression(self):
         self.pressions = []  # liste des Pressions en Pa
@@ -77,8 +80,25 @@ class Atmo:
             indice = m.sqrt((1 + (2 * L)) / (1 - L))
 
             indice = (indice - 1) * (10 ** 6)
-            print(indice)
             self.indices.append(indice)
+
+    def condition_limite(self, atmo_av, atmo_apr):
+        # Déterminer les limites supérieure et inférieure
+        limite_sup = atmo_apr.indices[0]
+        limite_inf = atmo_av.indices[-1]
+
+        # Affecter les limites aux indices du contexte courant
+        self.indices[0] = limite_inf
+        self.indices[-1] = limite_sup
+
+
+
+def del_prem_elem(atmo_av, atmo_apr):
+    # Supprimer les premiers éléments de atmo_apr et les derniers éléments de atmo_av
+    del atmo_av.indices[-1], atmo_apr.indices[0], \
+        atmo_av.altitudes[-1], atmo_apr.altitudes[0], \
+        atmo_av.pressions[-1], atmo_apr.pressions[0], \
+        atmo_av.temperatures[-1], atmo_apr.temperatures[0]
 
 
 def modele_pression(altitude_geom):
@@ -121,3 +141,46 @@ def refraction(name, ks):
                 k7 / (k8 ** 2 - (sigma ** 2))) + (k9 / (k10 ** 2 - (sigma ** 2))))
     else:
         return 1 + (10 ** -8) * (k0 + (k1 / (k2 - (sigma ** 2))))
+
+
+def plot_profils_temp_pressions(altitudes, temperatures, pressions):
+    plt.figure("Temperature")
+    plt.plot(temperatures, altitudes)
+    plt.title("Temperature en fonction de l'altitude")
+    plt.xlabel("Temperature en K")
+    plt.ylabel("Altitude en km")
+
+    plt.figure("Pression")
+    plt.plot([i / 100 for i in pressions], altitudes)
+    plt.title("Pression en fonction de l'altitude")
+    plt.grid(True)
+    plt.xscale("log")
+    plt.xlabel("Pression en hPa")
+    plt.ylabel("Altitude en km")
+
+
+def plot_profil_indices(indices, altitudes, modele_itu=None):
+    plt.figure("Réfractivité")
+    plt.plot(indices, altitudes, label="Indices")
+    plt.plot(modele_itu, altitudes, ls=':', label="modèle ITU")
+    plt.title("Réfractivité en fonction de l'altitude")
+    plt.xlabel("Réfractivité en N unit")
+    plt.ylabel("Altitude en km")
+    plt.legend()
+
+
+def variation_itu(atmo_1, atmo_2, atmos_co, modele_itu, taux):
+    plt.figure("Variation par rapport au modèle de l'ITU")
+    plt.ylabel("Altitude en km")
+    plt.xlabel("Ecart au modele ITU")
+    for k in range(len(atmos_co)):
+        indices_co = atmo_1.indices + atmos_co[k].indices + atmo_2.indices
+        altitudes_co = atmo_1.altitudes + atmos_co[k].altitudes + atmo_2.altitudes
+        difference = []
+        for i in range(len(indices_co)):
+            print("ITU:", modele_itu[i], "Altitude:", altitudes_co[i])
+            print("Modele:", indices_co[i])
+            difference.append(modele_itu[i] - indices_co[i])
+
+        plt.plot(difference, altitudes_co, label="Taux CO:" + str(taux[k]))
+    plt.legend()
