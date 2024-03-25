@@ -11,14 +11,14 @@ for line in f:
         name = line[0]
         ks = [float(x) for x in line[1:-1]]
         masse_mol = float(line[-1])
-        indice_ctrl = utils.refraction(name, ks)
-        bdd[name] = utils.Gaz(name, masse_mol, indice_ctrl)
+        index = utils.refraction(name, ks)
+        bdd[name] = utils.Gaz(name, masse_mol, index)
 f.close()
 
 comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
-comp_air_co = [(bdd["O2"], 0), (bdd["N2"], 0), (bdd["CO"], 1)]
+comp_air_co = [(bdd["O2"], 0.18), (bdd["N2"], 0.72), (bdd["CO"], 0.1)]
 
-# Pour l'atmosphère standard :
+# Pour l'atmosphère standard : 
 
 atmosphere_std = utils.Atmo(0, 30, comp_air_std)
 atmosphere_std.decoupe_altitude(30)
@@ -41,17 +41,14 @@ atmosphere_std_1.profil_indice()
 atmosphere_co.profil_indice()
 atmosphere_std_2.profil_indice()
 
-pressions_co = atmosphere_std_1.pressions + atmosphere_co.pressions + atmosphere_std_2.pressions
-temperatures_co = atmosphere_std_1.temperatures + atmosphere_co.temperatures + atmosphere_std_2.temperatures
 indices_co = atmosphere_std_1.indices + atmosphere_co.indices + atmosphere_std_2.indices
-altitudes_co = atmosphere_std_1.altitudes + atmosphere_co.altitudes + atmosphere_std_2.altitudes
 
 modele_itu = utils.ITU(pressions, temperatures)
 
-plt.figure("Temperature")
+plt.figure("Température")
 plt.plot(temperatures, altitudes)
-plt.title("Temperature en fonction de l'altitude")
-plt.xlabel("Temperature en K")
+plt.title("Température en fonction de l'altitude")
+plt.xlabel("Température en K")
 plt.ylabel("Altitude en km")
 
 plt.figure("Pression")
@@ -62,15 +59,9 @@ plt.xlabel("Pression en hPa")
 plt.ylabel("Altitude en km")
 
 plt.figure("Réfractivité")
-plt.plot(indices, altitudes, label="Indices")
-plt.plot(modele_itu, altitudes, ls=':', label="modèle ITU")
-plt.title("Réfractivité en fonction de l'altitude")
-plt.xlabel("Réfractivité en N unit")
-plt.ylabel("Altitude en km")
-plt.legend()
-
-plt.figure("Réfractivité CO")
-plt.plot(indices_co, altitudes_co, label="Indices")
+plt.plot(indices, altitudes, label = "Indices")
+plt.plot(modele_itu, altitudes, ls=':', label = "modèle ITU")
+plt.plot(indices_co, altitudes, label = "Indices CO")
 plt.title("Réfractivité en fonction de l'altitude")
 plt.xlabel("Réfractivité en N unit")
 plt.ylabel("Altitude en km")
