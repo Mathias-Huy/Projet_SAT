@@ -92,7 +92,6 @@ class Atmo:
         self.indices[-1] = limite_sup
 
 
-
 def del_prem_elem(atmo_av, atmo_apr):
     # Supprimer les premiers éléments de atmo_apr et les derniers éléments de atmo_av
     del atmo_av.indices[-1], atmo_apr.indices[0], \
@@ -154,7 +153,7 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     plt.plot([i / 100 for i in pressions], altitudes)
     plt.title("Pression en fonction de l'altitude")
     plt.grid(True)
-    plt.xscale("log")
+    # plt.xscale("log")
     plt.xlabel("Pression en hPa")
     plt.ylabel("Altitude en km")
 

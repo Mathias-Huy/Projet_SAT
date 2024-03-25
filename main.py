@@ -46,12 +46,12 @@ for x in taux:
 
 utils.del_prem_elem(atmosphere_std_1, atmosphere_std_2)
 
+atmosphere_co = atmospheres_co[1]
 
-
-pressions_co = atmosphere_std_1.pressions + atmospheres_co[0].pressions + atmosphere_std_2.pressions
-temperatures_co = atmosphere_std_1.temperatures + atmospheres_co[0].temperatures + atmosphere_std_2.temperatures
-indices_co = atmosphere_std_1.indices + atmospheres_co[0].indices + atmosphere_std_2.indices
-altitudes_co = atmosphere_std_1.altitudes + atmospheres_co[0].altitudes + atmosphere_std_2.altitudes
+pressions_co = atmosphere_std_1.pressions + atmosphere_co.pressions + atmosphere_std_2.pressions
+temperatures_co = atmosphere_std_1.temperatures + atmosphere_co.temperatures + atmosphere_std_2.temperatures
+indices_co = atmosphere_std_1.indices + atmosphere_co.indices + atmosphere_std_2.indices
+altitudes_co = atmosphere_std_1.altitudes + atmosphere_co.altitudes + atmosphere_std_2.altitudes
 
 # Modele fourni par l'ITU
 modele_itu = utils.ITU(pressions, temperatures)
@@ -60,12 +60,11 @@ modele_itu = utils.ITU(pressions, temperatures)
 utils.plot_profils_temp_pressions(altitudes, temperatures, pressions)
 
 # On trace le profil de refractivité de l'atmo std
-utils.plot_profil_indices(indices, altitudes, modele_itu)
+# utils.plot_profil_indices(indices, altitudes, modele_itu)
 
 utils.variation_itu(atmosphere_std_1, atmosphere_std_2, atmospheres_co, modele_itu, taux)
 
-
 # On trace le profil de refractivité de l'atmo avec Panache
-#utils.plot_profil_indices(indices_co, altitudes_co, modele_itu)
+utils.plot_profil_indices(indices_co, altitudes_co, modele_itu)
 
 plt.show()
