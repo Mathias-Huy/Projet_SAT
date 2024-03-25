@@ -38,7 +38,7 @@ atmospheres_co = []
 
 for x in taux:
     # On cree diferente atmosphère avec des differend taux de CO
-    comp_air_co = [(bdd["O2"], 0.2 * 1 - x), (bdd["N2"], 0.8 * (1 - x)), (bdd["CO"], x)]
+    comp_air_co = [(bdd["O2"], 0.2 * (1 - x)), (bdd["N2"], 0.8 * (1 - x)), (bdd["CO"], x)]
     atmo = utils.Atmo(10, 20, comp_air_co, nb_de_tranche // 3)
     # Condition aux limites.
     atmo.condition_limite(atmosphere_std_1, atmosphere_std_2)
