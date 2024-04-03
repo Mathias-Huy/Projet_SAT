@@ -31,7 +31,7 @@ class Gaz:
                 (self.indice_ctrl ** 2 - 1) / (self.indice_ctrl ** 2 + 2))
 
 
-class Atmo:
+class Tranche_Atmo:
 
     def __init__(self, altitude_debut, altitude_fin, composition, nb_tranche):
         self.indices = None
@@ -82,22 +82,34 @@ class Atmo:
             indice = (indice - 1) * (10 ** 6)
             self.indices.append(indice)
 
-    def condition_limite(self, atmo_av, atmo_apr):
-        # Déterminer les limites supérieure et inférieure
-        limite_sup = atmo_apr.indices[0]
-        limite_inf = atmo_av.indices[-1]
 
-        # Affecter les limites aux indices du contexte courant
-        self.indices[0] = limite_inf
-        self.indices[-1] = limite_sup
+class Atmo:
 
+    def __init__(self, atmosphère):
+        self.atmosphere_complete = atmosphère
+        self.altitudes = []
+        self.indices = []
+        self.condition_limite()
+        self.concatene_indices()
+        self.concatene_altitude()
 
-def del_prem_elem(atmo_av, atmo_apr):
-    # Supprimer les premiers éléments de atmo_apr et les derniers éléments de atmo_av
-    del atmo_av.indices[-1], atmo_apr.indices[0], \
-        atmo_av.altitudes[-1], atmo_apr.altitudes[0], \
-        atmo_av.pressions[-1], atmo_apr.pressions[0], \
-        atmo_av.temperatures[-1], atmo_apr.temperatures[0]
+    def condition_limite(self):
+        for i in range(len(self.atmosphere_complete)-1):
+            atmo_av = self.atmosphere_complete[i]
+            limite = atmo_av.indices[-1]
+            self.atmosphere_complete[i + 1].indices[0] = limite
+            del atmo_av.indices[-1], \
+                atmo_av.altitudes[-1], \
+                atmo_av.pressions[-1], \
+                atmo_av.temperatures[-1]
+
+    def concatene_altitude(self):
+        for atmo in self.atmosphere_complete:
+            self.altitudes = self.altitudes + atmo.altitudes
+
+    def concatene_indices(self):
+        for atmo in self.atmosphere_complete:
+            self.indices = self.indices + atmo.indices
 
 
 def modele_pression(altitude_geom):
@@ -113,6 +125,7 @@ def modele_pression(altitude_geom):
 
 def modele_temperature(altitude_geom):
     """altitude en km et retourne la temperature en kelvin"""
+    # np.interp(yitu,yanom, anom)
     altitude = (6356.766 * altitude_geom) / (6356.766 + altitude_geom)
     if altitude < 11:
         return 288.15 - 6.5 * altitude
@@ -158,9 +171,17 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     plt.ylabel("Altitude en km")
 
 
-def plot_profil_indices(indices, altitudes, modele_itu=None):
+def plot_profil_indices(atmo):
+
+    # Nous allons tracer le modèle de l'ITU
+    altitudes = atmo.altitudes
+    pressions = [modele_pression(altitude) for altitude in altitudes]
+    temperatures = [modele_temperature(altitude) for altitude in altitudes]
+    modele_itu = ITU(pressions, temperatures)
+
+
     plt.figure("Réfractivité")
-    plt.plot(indices, altitudes, label="Indices")
+    plt.plot(atmo.indices, altitudes, label="Indices")
     plt.plot(modele_itu, altitudes, ls=':', label="modèle ITU")
     plt.title("Réfractivité en fonction de l'altitude")
     plt.xlabel("Réfractivité en N unit")
@@ -168,18 +189,28 @@ def plot_profil_indices(indices, altitudes, modele_itu=None):
     plt.legend()
 
 
-def variation_itu(atmo_1, atmo_2, atmos_co, modele_itu, taux):
+def variation_itu(atmos_etude, taux):
     plt.figure("Variation par rapport au modèle de l'ITU")
     plt.ylabel("Altitude en km")
     plt.xlabel("Ecart au modele ITU")
-    for k in range(len(atmos_co)):
-        indices_co = atmo_1.indices + atmos_co[k].indices + atmo_2.indices
-        altitudes_co = atmo_1.altitudes + atmos_co[k].altitudes + atmo_2.altitudes
+    for k in range(len(atmos_etude)):
+        atmo = atmos_etude[k]
         difference = []
-        for i in range(len(indices_co)):
-            print("ITU:", modele_itu[i], "Altitude:", altitudes_co[i])
-            print("Modele:", indices_co[i])
-            difference.append(modele_itu[i] - indices_co[i])
+        altitudes = atmo.altitudes
+        pressions = [modele_pression(altitude) for altitude in altitudes]
+        temperatures = [modele_temperature(altitude) for altitude in altitudes]
+        modele_itu = ITU(pressions, temperatures)
+        for i in range(len(atmo.indices)):
+            difference.append(modele_itu[i] - atmo.indices[i])
 
-        plt.plot(difference, altitudes_co, label="Taux CO:" + str(taux[k]))
+        plt.plot(difference, altitudes, label="Taux CO: " + str(taux[k]))
     plt.legend()
+
+
+def plot_grad(indices, altitudes):
+    plt.figure("Gradient de Réfractivité")
+    plt.title("Gradient de Réfractivité pour 10% de CO")
+    plt.ylabel("Altitude en km")
+    plt.xlabel("Gradient de Réfractivité")
+    grad = np.gradient(indices)
+    plt.plot(grad, altitudes)
