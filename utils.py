@@ -85,8 +85,8 @@ class Tranche_Atmo:
 
 class Atmo:
 
-    def __init__(self, atmosphère):
-        self.atmosphere_complete = atmosphère
+    def __init__(self, atmosphere):
+        self.atmosphere_complete = atmosphere
         self.altitudes = []
         self.indices = []
         self.condition_limite()
@@ -94,10 +94,8 @@ class Atmo:
         self.concatene_altitude()
 
     def condition_limite(self):
-        for i in range(len(self.atmosphere_complete)-1):
+        for i in range(1, len(self.atmosphere_complete)):
             atmo_av = self.atmosphere_complete[i]
-            limite = atmo_av.indices[-1]
-            self.atmosphere_complete[i + 1].indices[0] = limite
             del atmo_av.indices[-1], \
                 atmo_av.altitudes[-1], \
                 atmo_av.pressions[-1], \
@@ -166,19 +164,17 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     plt.plot([i / 100 for i in pressions], altitudes)
     plt.title("Pression en fonction de l'altitude")
     plt.grid(True)
-    # plt.xscale("log")
+    plt.xscale("log")
     plt.xlabel("Pression en hPa")
     plt.ylabel("Altitude en km")
 
 
 def plot_profil_indices(atmo):
-
     # Nous allons tracer le modèle de l'ITU
     altitudes = atmo.altitudes
     pressions = [modele_pression(altitude) for altitude in altitudes]
     temperatures = [modele_temperature(altitude) for altitude in altitudes]
     modele_itu = ITU(pressions, temperatures)
-
 
     plt.figure("Réfractivité")
     plt.plot(atmo.indices, altitudes, label="Indices")

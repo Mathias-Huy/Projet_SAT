@@ -38,8 +38,8 @@ for x in taux:
     atmo_cplt = utils.Atmo([atmosphere_std_1, atmo, atmosphere_std_2])
     atmospheres_etude.append(atmo_cplt)
 
-atmo_std = atmospheres_etude[1]
-"""La Codition au limite est encore fausse, il faudrai revoir encore ça"""
+atmo_std = atmospheres_etude[-1]
+"""La Codition au limite est encore fausse, il faudrai revoir encore ça """
 # On trace les profils de temperature et pressions
 utils.plot_profils_temp_pressions(altitudes, temperatures, pressions)
 
