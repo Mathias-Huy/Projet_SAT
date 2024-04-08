@@ -1,6 +1,7 @@
 import math as m
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 
 """On initialise les gaz pour une longueur d'onde de 60m"""
 
@@ -152,12 +153,22 @@ def refraction(name, ks):
     else:
         return 1 + (10 ** -8) * (k0 + (k1 / (k2 - (sigma ** 2))))
 
+anorm = [(-3, 0), (-5, 2), (-6, 4), (-6, 6), (-7,8), (-7,10), (9,12), (9, 14),
+          (7.5, 16), (5, 18), (3, 20), (0.5, 22), (0, 24), (1.5, 26), (0, 28), (0, 30)]
+
+temp_anorm = [a[0] for a in anorm]
+alt_anorm = [a[1] for a in anorm]
+
+f_cubic = interp1d(alt_anorm, temp_anorm, kind='cubic')
+
+alt_anorm_interpolated = np.linspace(min(alt_anorm), max(alt_anorm), 100)
+temp_anorm_interpolated = f_cubic(alt_anorm_interpolated)
 
 def plot_profils_temp_pressions(altitudes, temperatures, pressions):
-    plt.figure("Temperature")
+    plt.figure("Température")
     plt.plot(temperatures, altitudes)
-    plt.title("Temperature en fonction de l'altitude")
-    plt.xlabel("Temperature en K")
+    plt.title("Température en fonction de l'altitude")
+    plt.xlabel("Température en K")
     plt.ylabel("Altitude en km")
 
     plt.figure("Pression")
@@ -167,6 +178,14 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     plt.xscale("log")
     plt.xlabel("Pression en hPa")
     plt.ylabel("Altitude en km")
+
+    plt.figure("Température anormales")
+    plt.plot(temp_anorm, alt_anorm)
+    plt.plot(temp_anorm_interpolated, alt_anorm_interpolated)
+    plt.title("Températures anormales en fonction de l'altitude")
+    plt.xlabel("Température en K")
+    plt.ylabel("Altitude en km")
+    plt.grid(True)
 
 
 def plot_profil_indices(atmo):

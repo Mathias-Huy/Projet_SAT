@@ -1,5 +1,7 @@
 from matplotlib import pyplot as plt
 import utils
+import numpy as np
+from scipy.interpolate import interp1d
 
 f = open("Gaz.txt")
 bdd = {}
@@ -39,7 +41,7 @@ for x in taux:
     atmospheres_etude.append(atmo_cplt)
 
 atmo_std = atmospheres_etude[-1]
-"""La Codition au limite est encore fausse, il faudrai revoir encore ça """
+"""La Condition aux limites est encore fausse, il faudrait revoir encore ça """
 # On trace les profils de temperature et pressions
 utils.plot_profils_temp_pressions(altitudes, temperatures, pressions)
 
