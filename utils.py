@@ -9,6 +9,13 @@ R = 8.31446261815324  # J/K/mol la constante des gazs parfaits
 frequence = 5e6  # en Hz
 lambd = 3e8 / frequence
 sigma = 1 / (lambd * 10 ** 2)
+anorm = [(-3, 0), (-5, 2), (-6, 4), (-6, 6), (-7, 8), (-7, 10), (9, 12), (9, 14),
+         (7.5, 16), (5, 18), (3, 20), (0.5, 22), (0, 24), (1.5, 26), (0, 28), (0, 30)]
+temp_anorm = [a[0] for a in anorm]
+alt_anorm = [a[1] for a in anorm]
+
+fonction_anom_temperature = interp1d(alt_anorm, temp_anorm, kind='cubic')
+plt.ion()
 
 
 class Gaz:
@@ -34,7 +41,7 @@ class Gaz:
 
 class Tranche_Atmo:
 
-    def __init__(self, altitude_debut, altitude_fin, composition, nb_tranche):
+    def __init__(self, altitude_debut, altitude_fin, composition, nb_tranche, anom_temp=False):
         self.indices = None
         self.temperatures = None
         self.pressions = None
@@ -42,7 +49,7 @@ class Tranche_Atmo:
         self.altitude_debut = altitude_debut
         self.altitude_fin = altitude_fin
         self.composition = composition
-
+        self.anom_temp = anom_temp
         self.decoupe_altitude(nb_tranche)
 
     def decoupe_altitude(self, nombre_de_tranche):
@@ -61,8 +68,15 @@ class Tranche_Atmo:
     def profil_temperature(self):
         self.temperatures = []  # Liste des temperature en K
 
-        for altitude in self.altitudes:
-            self.temperatures.append(modele_temperature(altitude))
+        if self.anom_temp:
+            anomalie = fonction_anom_temperature(self.altitudes)
+
+            for i in range(len(self.altitudes)):
+                temperatures = modele_temperature(self.altitudes[i])
+                self.temperatures.append(temperatures + anomalie[i])
+        else:
+            for altitude in self.altitudes:
+                self.temperatures.append(modele_temperature(altitude))
 
     def profil_indice(self):
         self.indices = []
@@ -90,25 +104,31 @@ class Atmo:
         self.atmosphere_complete = atmosphere
         self.altitudes = []
         self.indices = []
+        self.temperatures = []
         self.condition_limite()
         self.concatene_indices()
         self.concatene_altitude()
+        self.concatene_temp()
 
     def condition_limite(self):
         for i in range(1, len(self.atmosphere_complete)):
             atmo_av = self.atmosphere_complete[i]
-            del atmo_av.indices[-1], \
-                atmo_av.altitudes[-1], \
-                atmo_av.pressions[-1], \
-                atmo_av.temperatures[-1]
+            # del atmo_av.indices[-1], \
+            #     atmo_av.altitudes[-1], \
+            #     atmo_av.pressions[-1], \
+            #     atmo_av.temperatures[-1]
 
     def concatene_altitude(self):
         for atmo in self.atmosphere_complete:
-            self.altitudes = self.altitudes + atmo.altitudes
+            self.altitudes = self.altitudes + atmo.altitudes[:-1]
 
     def concatene_indices(self):
         for atmo in self.atmosphere_complete:
-            self.indices = self.indices + atmo.indices
+            self.indices = self.indices + atmo.indices[:-1]
+
+    def concatene_temp(self):
+        for atmo in self.atmosphere_complete:
+            self.temperatures = self.temperatures + atmo.temperatures[:-1]
 
 
 def modele_pression(altitude_geom):
@@ -124,7 +144,6 @@ def modele_pression(altitude_geom):
 
 def modele_temperature(altitude_geom):
     """altitude en km et retourne la temperature en kelvin"""
-    # np.interp(yitu,yanom, anom)
     altitude = (6356.766 * altitude_geom) / (6356.766 + altitude_geom)
     if altitude < 11:
         return 288.15 - 6.5 * altitude
@@ -153,39 +172,38 @@ def refraction(name, ks):
     else:
         return 1 + (10 ** -8) * (k0 + (k1 / (k2 - (sigma ** 2))))
 
-anorm = [(-3, 0), (-5, 2), (-6, 4), (-6, 6), (-7,8), (-7,10), (9,12), (9, 14),
-          (7.5, 16), (5, 18), (3, 20), (0.5, 22), (0, 24), (1.5, 26), (0, 28), (0, 30)]
 
-temp_anorm = [a[0] for a in anorm]
-alt_anorm = [a[1] for a in anorm]
+# alt_anorm_interpolated = np.linspace(min(alt_anorm), max(alt_anorm), 100)
+# temp_anorm_interpolated = f_cubic(alt_anorm_interpolated)
 
-f_cubic = interp1d(alt_anorm, temp_anorm, kind='cubic')
+def anomalie_temperature(altitude):
+    temp_anorm_interpolated = fonction_anom_temperature(altitude)
 
-alt_anorm_interpolated = np.linspace(min(alt_anorm), max(alt_anorm), 100)
-temp_anorm_interpolated = f_cubic(alt_anorm_interpolated)
+    return temp_anorm_interpolated
+
 
 def plot_profils_temp_pressions(altitudes, temperatures, pressions):
-    plt.figure("Température")
-    plt.plot(temperatures, altitudes)
-    plt.title("Température en fonction de l'altitude")
-    plt.xlabel("Température en K")
-    plt.ylabel("Altitude en km")
+    # Création des subplots
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 6))
 
-    plt.figure("Pression")
-    plt.plot([i / 100 for i in pressions], altitudes)
-    plt.title("Pression en fonction de l'altitude")
-    plt.grid(True)
-    plt.xscale("log")
-    plt.xlabel("Pression en hPa")
-    plt.ylabel("Altitude en km")
+    # Graphique de température
+    ax1.plot(temperatures, altitudes)
+    ax1.set_title("Température en fonction de l'altitude")
+    ax1.set_xlabel("Température en K")
+    ax1.set_ylabel("Altitude en km")
 
-    plt.figure("Température anormales")
-    plt.plot(temp_anorm, alt_anorm)
-    plt.plot(temp_anorm_interpolated, alt_anorm_interpolated)
-    plt.title("Températures anormales en fonction de l'altitude")
-    plt.xlabel("Température en K")
-    plt.ylabel("Altitude en km")
-    plt.grid(True)
+    # Graphique de pression
+    ax2.plot([i / 100 for i in pressions], altitudes)
+    ax2.set_title("Pression en fonction de l'altitude")
+    ax2.grid(True)
+    ax2.set_xscale("log")
+    ax2.set_xlabel("Pression en hPa")
+
+    ax3.plot(fonction_anom_temperature(altitudes), altitudes, label="Données Document")
+    ax3.plot(temp_anorm, alt_anorm, label="Fonction interpolée")
+    ax3.set_title("Anomalie de Temperature")
+    ax3.set_xlabel("Déviation de Temperature")
+    plt.legend()
 
 
 def plot_profil_indices(atmo):
