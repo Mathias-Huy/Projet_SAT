@@ -189,6 +189,7 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     # Graphique de température
     ax1.plot(temperatures, altitudes)
     ax1.set_title("Température en fonction de l'altitude")
+    ax1.grid(True)
     ax1.set_xlabel("Température en K")
     ax1.set_ylabel("Altitude en km")
 
@@ -201,9 +202,11 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
 
     ax3.plot(fonction_anom_temperature(altitudes), altitudes, label="Données Document")
     ax3.plot(temp_anorm, alt_anorm, label="Fonction interpolée")
+    ax3.grid(True)
     ax3.set_title("Anomalie de Temperature")
     ax3.set_xlabel("Déviation de Temperature")
     plt.legend()
+
 
 
 def plot_profil_indices(atmo):
@@ -220,6 +223,7 @@ def plot_profil_indices(atmo):
     plt.xlabel("Réfractivité en N unit")
     plt.ylabel("Altitude en km")
     plt.legend()
+    plt.grid()
 
 
 def variation_itu(atmos_etude, taux):
@@ -238,6 +242,7 @@ def variation_itu(atmos_etude, taux):
 
         plt.plot(difference, altitudes, label="Taux CO: " + str(taux[k]))
     plt.legend()
+    plt.grid()
 
 
 def plot_grad(indices, altitudes):
@@ -247,3 +252,4 @@ def plot_grad(indices, altitudes):
     plt.xlabel("Gradient de Réfractivité")
     grad = np.gradient(indices)
     plt.plot(grad, altitudes)
+    plt.grid()
