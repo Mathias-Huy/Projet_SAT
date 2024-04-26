@@ -24,6 +24,7 @@ for line in f:
 f.close()
 
 comp_air_std = [(bdd["O2"], 0.2), (bdd["N2"], 0.8)]
+
 # Pour l'atmosphère avec couche de monoxyde de carbone CO :
 
 taux = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 1]
@@ -33,16 +34,16 @@ atmosphere_std_2 = utils.Tranche_Atmo(20, 30, comp_air_std, nb_de_tranche // 3, 
 atmospheres_etude = []
 
 for x in taux:
-    # On cree diferente atmosphère avec des differend taux de CO
+    # On crée différentes atmosphères avec des différents taux de CO.
     comp_air_co = [(bdd["O2"], 0.2 * (1 - x)), (bdd["N2"], 0.8 * (1 - x)), (bdd["CO"], x)]
     atmo = utils.Tranche_Atmo(10, 20, comp_air_co, nb_de_tranche // 3, )
-    # Condition aux limites.
+    # Conditions aux limites.
     atmo_cplt = utils.Atmo([atmosphere_std_1, atmo, atmosphere_std_2])
     atmospheres_etude.append(atmo_cplt)
 
 atmo_std = atmospheres_etude[0]
 """La Condition aux limites est encore fausse, il faudrait revoir encore ça """
-# On trace les profils de temperature et pressions
+# On trace les profils de température et pressions
 utils.plot_profils_temp_pressions(altitudes, atmo_std.temperatures, pressions)
 
 utils.variation_itu(atmospheres_etude, taux)
