@@ -9,12 +9,13 @@ R = 8.31446261815324  # J/K/mol la constante des gazs parfaits
 frequence = 5e6  # en Hz
 lambd = 3e8 / frequence
 sigma = 1 / (lambd * 10 ** 2)
-anorm = [(-3, 0), (-5, 2), (-6, 4), (-6, 6), (-7, 8), (-7, 10), (9, 12), (9, 14),
-         (7.5, 16), (5, 18), (3, 20), (0.5, 22), (0, 24), (1.5, 26), (0, 28), (0, 30)]
+anorm = [(-3, 0), (-4.5,1), (-5, 2), (-5.5,3), (-6, 4), (-6, 5), (-6, 6), (-6.5, 7), (-7, 8), (-8,9), (-7, 10), (-3,10.5), (0,11), (5,11.5), (9, 12), (10, 13), (9, 14),
+         (8, 15), (7.5, 16), (6,17), (5, 18), (4, 19), (3, 20), (2, 21), (0.5, 22), (0, 23), (0, 24), (0.5,25), (1.5, 26), (2, 27), (-1, 28), (1, 29), (0, 30)]
 temp_anorm = [a[0] for a in anorm]
 alt_anorm = [a[1] for a in anorm]
 
-fonction_anom_temperature = interp1d(alt_anorm, temp_anorm, kind='cubic')
+fill_value="extrapolate"
+fonction_anom_temperature = interp1d(alt_anorm, temp_anorm, kind='linear')
 plt.ion()
 
 
@@ -201,7 +202,7 @@ def plot_profils_temp_pressions(altitudes, temperatures, pressions):
     ax2.set_xlabel("Pression en hPa")
 
     ax3.plot(fonction_anom_temperature(altitudes), altitudes, label="Données Document")
-    ax3.plot(temp_anorm, alt_anorm, label="Fonction interpolée")
+    #ax3.plot(temp_anorm, alt_anorm, label="Fonction interpolée")
     ax3.grid(True)
     ax3.set_title("Anomalie de Temperature")
     ax3.set_xlabel("Déviation de Temperature")
