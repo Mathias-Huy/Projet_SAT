@@ -218,7 +218,7 @@ def plot_profil_indices(atmo):
     modele_itu = ITU(pressions, temperatures)
 
     plt.figure("Réfractivité")
-    plt.plot(atmo.indices, altitudes, label="Indices")
+    #plt.plot(atmo.indices, altitudes, label="Indices")
     plt.plot(modele_itu, altitudes, ls=':', label="modèle ITU")
     plt.title("Réfractivité en fonction de l'altitude")
     plt.xlabel("Réfractivité en N unit")
