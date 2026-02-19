@@ -6,7 +6,7 @@ mpl.use('Qt5Agg')
 f = open("Gaz.txt")
 bdd = {}
 nb_de_tranche = 30
-altitude_deb = 0
+altitude_deb = 2773
 altitude_fin = 30
 altitudes = [0 + i * ((altitude_fin - altitude_deb) / nb_de_tranche) for i in range(nb_de_tranche)]
 pressions = [utils.modele_pression(altitude) for altitude in altitudes]
